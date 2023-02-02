@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: netint-pod
+  namespace: kube-system
+  labels:
+    name: netint-pod
+spec:
+  dnsPolicy: ClusterFirstWithHostNet
+  containers:
+  - name: netint-pod
+    image: netint/ni_xcoder_release:2.0.0
+    command: [ "/bin/bash", "-c", "--" ]
+    args: [ "while true; do sleep 30; done;" ]
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "500m"
+        netint.ca/ASIC: 1
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+        netint.ca/ASIC: 1
+    ports:
+      - containerPort: 80
+  nodeSelector:
+#    kubernetes.io/hostname: localhost.localdomain
+    kubernetes.io/hostname: yhtest
