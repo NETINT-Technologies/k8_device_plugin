@@ -8,7 +8,7 @@ COPY netint /root/netint
 COPY yum/proxy/yum.conf /etc/
 
 #nvme cli install
-RUN yum install -y nvme-cli.x86_64
+RUN yum install -y nvme-cli.x86_64 udev
 
 #back to default yum.conf 
 COPY yum/default/yum.conf /etc/
