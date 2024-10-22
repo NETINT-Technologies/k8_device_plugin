@@ -1,6 +1,6 @@
 #Version: 2.0.0
 FROM centos:centos7
-MAINTAINER Tyroun Liu "tyroun.liu@netint.ca"
+MAINTAINER NETINT "support@netint.ca"
 ENV REFRESHED_AT 2023-01-12
 #should build netint first
 COPY netint /root/netint

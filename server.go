@@ -61,23 +61,23 @@ type NiDevice struct {
 }
 
 const (
-	resourceName string = "netint.ca/ASIC"
-	NetintSocket string = "Netint.sock"
+	resourceName       string = "netint.ca/ASIC"
+	NetintSocket       string = "Netint.sock"
 	resourceNameQuadra string = "netint.ca/Quadra"
 	NetintSocketQuadra string = "Netint.sockQuadra"
-	// KubeletSocket kubelet 监听 unix 的名称
+	// KubeletSocket Unix domain socket used by Kubelet
 	KubeletSocket string = "kubelet.sock"
-	// DevicePluginPath 默认位置
+	// DevicePluginPath default path
 	DevicePluginPath string = "/var/lib/kubelet/device-plugins/"
 
 	envDisableHealthChecks        = "NI_DISABLE_HEALTHCHECKS" //"all" means disable all check
-	showMonitorLog                = "showMonitorLog"                       //Y or N
+	showMonitorLog                = "showMonitorLog"          //Y or N
 	virtualNum             string = "virtualNumber"
-	virtualNumQuadra             string = "virtualNumQuadra"
+	virtualNumQuadra       string = "virtualNumQuadra"
 	defaultVirtNum         int    = 1
 )
 
-// NetintServer 是一个 device plugin server
+// NetintServer is a device plugin server
 type NetintServer struct {
 	srv           *grpc.Server
 	cachedDevices []*NiDevice
@@ -85,7 +85,7 @@ type NetintServer struct {
 	cancel        context.CancelFunc
 	virtualNum    int
 
-	restartFlag bool // 本次是否是重启
+	restartFlag bool // flag to decide if restart this time
 	unHealth    chan *NiDevice
 	health      chan *NiDevice
 	stop        chan interface{}
@@ -96,10 +96,10 @@ type NetintServer struct {
 	regPattern   string
 }
 
-// NewNetintServer 实例化 NetintServer
+// NewNetintServer instantiate NetintServer
 func NewNetintServer(serverType ServerType) *NetintServer {
 	ctx, cancel := context.WithCancel(context.Background())
-	if serverType == LOGAN{
+	if serverType == LOGAN {
 		vNum, err := strconv.Atoi(os.Getenv(virtualNum))
 		if err != nil {
 			vNum = defaultVirtNum
@@ -114,9 +114,9 @@ func NewNetintServer(serverType ServerType) *NetintServer {
 			stop:          nil,
 			update:        nil,
 			resourceName:  resourceName,
-			netintSocket: NetintSocket,
-			regPattern: "T4\\d\\d-.*",
-			virtualNum: vNum,
+			netintSocket:  NetintSocket,
+			regPattern:    "T4\\d\\d-.*",
+			virtualNum:    vNum,
 		}
 	} else {
 		vNum, err := strconv.Atoi(os.Getenv(virtualNumQuadra))
@@ -133,17 +133,17 @@ func NewNetintServer(serverType ServerType) *NetintServer {
 			stop:          nil,
 			update:        nil,
 			resourceName:  resourceNameQuadra,
-			netintSocket: NetintSocketQuadra,
-			regPattern: "Quadra.*",
-			virtualNum: vNum,
+			netintSocket:  NetintSocketQuadra,
+			regPattern:    "Quadra.*",
+			virtualNum:    vNum,
 		}
 	}
 
 }
 
-// Run 运行服务
+// Run to start the service
 func (s *NetintServer) Run() error {
-	// 发现本地设备
+	// to discover local devices
 	err := s.initialize()
 	if err != nil {
 		//No card bus still can run the device plugin
@@ -196,7 +196,7 @@ func (s *NetintServer) cleanup() {
 	s.update = nil
 }
 
-// RegisterToKubelet 向kubelet注册device plugin
+// RegisterToKubelet to register device plugin with kubelet
 func (s *NetintServer) RegisterToKubelet() error {
 	socketFile := filepath.Join(DevicePluginPath + KubeletSocket)
 
@@ -366,8 +366,8 @@ func identifyDevice(devicePath string) bool {
 			return false
 		} else {
 			v := matchArr[1]
-			log.Infoln("find vid = %q",matchArr)
-			vid,err := strconv.Atoi(v)
+			log.Infoln("find vid = %q", matchArr)
+			vid, err := strconv.Atoi(v)
 			if vid == 7554 {
 				log.Infoln("Identify NETINT devices '%s' is OK", devicePath)
 				return true
@@ -437,7 +437,7 @@ func getDeviceInfo() (*NiDeviceInfos, error) {
 	return &infos, err
 }
 
-// initialize 从节点上发现设备
+// initialize to discover devices on node
 func (s *NetintServer) initialize() error {
 	niInfos, err := getDeviceInfo()
 	if err != nil {
